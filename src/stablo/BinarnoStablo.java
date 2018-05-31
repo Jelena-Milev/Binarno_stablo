@@ -4,8 +4,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import cvor.BSTCvor;
+
 public class BinarnoStablo<T> implements Map<Integer, T>{
 
+	private BSTCvor<T> koren=null;
+	
+	
+	
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
