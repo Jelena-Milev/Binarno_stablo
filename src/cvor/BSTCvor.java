@@ -2,9 +2,9 @@ package cvor;
 
 public class BSTCvor<T> {
 
-	private Integer kljuc;
-	private T vrednost;
-	private BSTCvor<T> levo, desno;
+	public Integer kljuc;
+	public T vrednost;
+	public BSTCvor<T> levo, desno;
 
 	public BSTCvor() {
 
