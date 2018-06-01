@@ -11,7 +11,11 @@ import cvor.BSTCvor;
 
 public class BinarnoStablo<T> implements Map<Integer, T> {
 
-	private BSTCvor<T> koren = null;
+	private BSTCvor<T> koren;
+
+	public BinarnoStablo() {
+		this.koren = null;
+	}
 
 	@Override
 	public void clear() {
@@ -29,13 +33,6 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 		else
 			return true;
 	}
-
-	// public T pretragaPoKljucu(Integer kljuc) throws Exception {
-	// BSTCvor<T> cvor = nadjiKljucPrivate(kljuc, koren);
-	// if (cvor == null)
-	// throw new Exception("Kljuc ne postoji u stablu");
-	// return cvor.vrednost;
-	// }
 
 	private BSTCvor<T> nadjiKljucPrivate(Integer kljuc, BSTCvor<T> k) {
 		if (k == null)
@@ -120,7 +117,7 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 	public T put(Integer key, T value) {
 		BSTCvor<T> cvor = nadjiKljucPrivate(key, koren);
 		if (cvor == null) {
-			ubaci(key, value, koren);
+			ubaci(key, value);
 			return null;
 		} else {
 			T vrednost = cvor.vrednost;
@@ -129,21 +126,25 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 		}
 	}
 
-	private void ubaci(Integer key, T value, BSTCvor<T> koren) {
-		if (koren == null) {
-			koren = new BSTCvor<T>(key, value);
+	private void ubaci(Integer key, T value) {
+		if (isEmpty()) {
+			this.koren = new BSTCvor<T>(key, value);
 			return;
 		}
-		if (koren.kljuc > key) {
-			if (koren.levo == null) {
-				koren.levo = new BSTCvor<T>(key, value);
+		ubaciPrivate(key, value, koren);
+	}
+
+	private void ubaciPrivate(Integer key, T value, BSTCvor<T> k) {
+		if (k.kljuc > key) {
+			if (k.levo == null) {
+				k.levo = new BSTCvor<T>(key, value);
 			} else
-				ubaci(key, value, koren.levo);
-		} else if (koren.kljuc < key) {
-			if (koren.desno == null) {
-				koren.desno = new BSTCvor<T>(key, value);
+				ubaciPrivate(key, value, k.levo);
+		} else if (k.kljuc < key) {
+			if (k.desno == null) {
+				k.desno = new BSTCvor<T>(key, value);
 			} else
-				ubaci(key, value, koren.desno);
+				ubaciPrivate(key, value, k.desno);
 		}
 	}
 
@@ -173,7 +174,7 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 	private BSTCvor<T> max(BSTCvor<T> k) {
 		if (k == null)
 			return null;
-		if(k.desno==null)
+		if (k.desno == null)
 			return k;
 		return max(k.desno);
 	}
@@ -240,7 +241,7 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 		vrednosti.add(k.vrednost);
 		vratiVrednostiCvorovaPrivate(k.levo, vrednosti);
 		vratiVrednostiCvorovaPrivate(k.desno, vrednosti);
-
 	}
 
+	
 }
