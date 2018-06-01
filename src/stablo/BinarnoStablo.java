@@ -131,8 +131,7 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 
 	@Override
 	public void putAll(Map<? extends Integer, ? extends T> m) {
-		
-
+		m.forEach((k, v) -> put(k, v));
 	}
 
 	@Override
