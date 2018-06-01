@@ -6,10 +6,14 @@ public class BSTCvor<T> {
 	public T vrednost;
 	public BSTCvor<T> levo, desno;
 
-	public BSTCvor() {
-
+	public BSTCvor(Integer key, T value) {
+		this.kljuc = key;
+		this.vrednost = value;
+		this.levo = null;
+		this.desno = null;
 	}
-
+	
+	
 	public BSTCvor(Integer key, T value, BSTCvor<T> left, BSTCvor<T> right) {
 		this.kljuc = key;
 		this.vrednost = value;
@@ -17,4 +21,5 @@ public class BSTCvor<T> {
 		this.desno = right;
 	}
 
+	
 }
