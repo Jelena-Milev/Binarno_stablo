@@ -1,5 +1,6 @@
 package stablo;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,7 +21,7 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 
 	@Override
 	public boolean containsKey(Object key) {
-		if (koren == null)
+		if (isEmpty())
 			return false;
 		BSTCvor<T> cvor = nadjiKljucPrivate((Integer) key, koren);
 		if (cvor == null)
@@ -29,12 +30,12 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 			return true;
 	}
 
-	public T pretragaPoKljucu(Integer kljuc) throws Exception {
-		BSTCvor<T> cvor = nadjiKljucPrivate(kljuc, koren);
-		if (cvor == null)
-			throw new Exception("Kljuc ne postoji u stablu");
-		return cvor.vrednost;
-	}
+	// public T pretragaPoKljucu(Integer kljuc) throws Exception {
+	// BSTCvor<T> cvor = nadjiKljucPrivate(kljuc, koren);
+	// if (cvor == null)
+	// throw new Exception("Kljuc ne postoji u stablu");
+	// return cvor.vrednost;
+	// }
 
 	private BSTCvor<T> nadjiKljucPrivate(Integer kljuc, BSTCvor<T> k) {
 		if (k == null)
@@ -62,14 +63,30 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 
 	@Override
 	public Set<Entry<Integer, T>> entrySet() {
-		// TODO Auto-generated method stub
-		return null;
+		if (isEmpty())
+			return null;
+		Set<Entry<Integer, T>> elementi = new HashSet<>();
+		izvuciElemente(koren, elementi);
+		return elementi;
+	}
+
+	private void izvuciElemente(BSTCvor<T> k, Set<Entry<Integer, T>> elementi) {
+		if (k == null)
+			return;
+		Map.Entry<Integer, T> entry = new AbstractMap.SimpleEntry<Integer, T>(k.kljuc, k.vrednost);
+		elementi.add(entry);
+		izvuciElemente(k.levo, elementi);
+		izvuciElemente(k.desno, elementi);
+
 	}
 
 	@Override
 	public T get(Object key) {
-		// TODO Auto-generated method stub
-		return null;
+		BSTCvor<T> cvor = nadjiKljucPrivate((Integer) key, koren);
+		if (cvor == null)
+			return null;
+		else
+			return cvor.vrednost;
 	}
 
 	@Override
@@ -79,24 +96,24 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 
 	@Override
 	public Set<Integer> keySet() {
-		if (koren == null)
+		if (isEmpty())
 			return null;
 		return vratiKljuceve();
 	}
 
 	private Set<Integer> vratiKljuceve() {
-		Set<Integer> kljucevi=new HashSet<>();
+		Set<Integer> kljucevi = new HashSet<>();
 		dodajKljuceve(koren, kljucevi);
 		return kljucevi;
 	}
 
 	private void dodajKljuceve(BSTCvor<T> k, Set<Integer> kljucevi) {
-		if(k==null)
+		if (k == null)
 			return;
 		kljucevi.add(k.kljuc);
 		dodajKljuceve(k.levo, kljucevi);
 		dodajKljuceve(k.desno, kljucevi);
-		
+
 	}
 
 	@Override
@@ -113,15 +130,16 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 	}
 
 	private void ubaci(Integer key, T value, BSTCvor<T> koren) {
-		if (koren == null)
+		if (koren == null) {
 			koren = new BSTCvor<T>(key, value);
-		if (koren.kljuc < key) {
+			return;
+		}
+		if (koren.kljuc > key) {
 			if (koren.levo == null) {
 				koren.levo = new BSTCvor<T>(key, value);
 			} else
 				ubaci(key, value, koren.levo);
-		}
-		if (koren.kljuc > key) {
+		} else if (koren.kljuc < key) {
 			if (koren.desno == null) {
 				koren.desno = new BSTCvor<T>(key, value);
 			} else
@@ -136,8 +154,60 @@ public class BinarnoStablo<T> implements Map<Integer, T> {
 
 	@Override
 	public T remove(Object key) {
-		// TODO Auto-generated method stub
-		return null;
+		if (isEmpty())
+			return null;
+		BSTCvor<T> cvor = nadjiKljucPrivate((Integer) key, koren);
+		if (cvor == null)
+			return null;
+		if ((cvor.levo == null && cvor.desno == null) || (cvor.levo == null ^ cvor.desno == null)) {
+			return izbaciListPoluList(cvor);
+		} else {
+			BSTCvor<T> maxL = max(cvor.levo);
+			T vrednost = cvor.vrednost;
+			cvor.vrednost = maxL.vrednost;
+			maxL.vrednost = vrednost;
+			return izbaciListPoluList(maxL);
+		}
+	}
+
+	private BSTCvor<T> max(BSTCvor<T> k) {
+		if (k == null)
+			return null;
+		if(k.desno==null)
+			return k;
+		return max(k.desno);
+	}
+
+	private T izbaciListPoluList(BSTCvor<T> cvor) {
+		BSTCvor<T> roditelj = vratiRoditelja(koren, cvor);
+		BSTCvor<T> dete = cvor.levo != null ? cvor.levo : cvor.desno;
+		if (roditelj == null) {
+			koren = dete;
+			return cvor.vrednost;
+		}
+		if (roditelj.levo == cvor) {
+			roditelj.levo = dete;
+			return cvor.vrednost;
+		} else {
+			roditelj.desno = dete;
+			return cvor.vrednost;
+		}
+	}
+
+	private BSTCvor<T> vratiRoditelja(BSTCvor<T> k, BSTCvor<T> cvor) {
+		if (k == null || k == cvor)
+			return null;
+		if (cvor.kljuc < k.kljuc) {
+			if (k.levo == cvor) {
+				return k;
+			}
+			return vratiRoditelja(k.levo, cvor);
+		} else {
+			if (k.desno == cvor) {
+				return k;
+			}
+			return vratiRoditelja(k.desno, cvor);
+		}
 	}
 
 	@Override
